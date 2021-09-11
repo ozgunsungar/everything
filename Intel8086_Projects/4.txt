@@ -1,0 +1,91 @@
+
+; You may customize this and other start-up templates; 
+; The location of this template is c:\emu8086\inc\0_com_template.txt
+
+org 100h
+
+CALL MULTI 
+CALL PRINT
+ret
+   
+mult1 dd 11223344H     
+mult2 dd 55667788H
+array dw 0,0,0,0,0  ;fazladan 0 var. asagidaki degerlerle karismasin diye
+
+
+
+PRINT PROC  
+    LEA SI,array[7]  
+    MOV CX,8
+    STD ;set the dataflag 1 (taking values end to start in array)
+    
+GO:
+    LODSB     ;SI-=1 because df is 1  
+    MOV DL,AL
+    CALL DISPLAY_HEX
+    LOOP GO
+    ret
+    
+PRINT ENDP  
+
+DISPLAY_HEX PROC NEAR
+    mov  dh, dl          ; save a copy for later
+ 
+    shr  dl, 4          ; extract the high nibble into an 8-bit integer
+
+    CALL ONE_DIGIT  
+
+    and  dh, 0Fh         ; clear the high nibble, keeping only the low nibble
+    mov  dl, dh          ; and pass it to our function
+    CALL ONE_DIGIT  
+
+    RET        
+    
+
+DISPLAY_HEX ENDP 
+
+ONE_DIGIT PROC NEAR
+    CMP   DL,9   ;Short Jump if first operand is Below or Equal to second operand 
+    JBE   DIGIT   
+
+    ADD   DL,'A'-10 - '0';10 ya da 0Ah   ;0 ascii degere cekmek icin
+DIGIT:
+    ADD   DL, '0' ;Add 30 to DL (hexadecimal degeri ascii tablosunun karakter degerine esitlemek icin)
+
+    MOV AH,02H  
+    INT 21H      ; write char to stdout, return in AL.
+    RET
+ONE_DIGIT ENDP   
+
+
+        
+MULTI PROC       
+
+    LEA SI,array
+    
+    mov ax,mult1
+    mul mult2
+    mov array,ax
+    mov array+2,dx
+    
+    mov ax,mult1+2
+    mul mult2
+    add array+2,ax
+    adc array+4,dx
+    adc array+6,0
+    
+    mov ax,mult1
+    mul mult2+2
+    add array+2,ax
+    adc array+4,dx
+    adc array+6,0
+    
+    mov ax,mult1+2
+    mul mult2+2
+    add array+4,ax
+    adc array+6,dx   
+    
+    
+    
+    ret  
+MULTI ENDP

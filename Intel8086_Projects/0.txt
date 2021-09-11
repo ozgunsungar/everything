@@ -1,0 +1,64 @@
+
+; You may customize this and other start-up templates; 
+; The location of this template is c:\emu8086\inc\0_com_template.txt
+
+org 100h
+
+
+CALL BUBBLE 
+CALL Copy
+CALL Print 
+ret
+array DB 'M','I','C','R','O','C','O','M','P','U','T','E','R','S' 
+N DW 14
+
+
+Print PROC
+    LEA SI,array    
+    MOV CX, N 
+    MOV AH, 0Eh
+GO:
+    LODSB 
+    INT 10h 
+    LOOP GO
+    ret
+Print ENDP  
+
+BUBBLE PROC 
+    MOV DI,0    ;DI i olarak tanimlandi
+    forOuter:
+    CMP DI,N 
+    JGE endBubble:
+    
+        MOV SI,1 ;SI j olarak tanimlandi
+        MOV BX,N
+        SUB BX,DI ;BX te N-i var
+        INC DI
+        forInner:
+        
+        CMP SI, BX  ;j<(N-i)
+        JGE forOuter
+        
+        MOV AH,array[SI-1]
+        MOV AL,array[SI]
+        CMP AH,AL
+        JLE pass:
+        XCHG AH,AL   ;if A[j-1] > A[j]
+        MOV array[SI-1],AH
+        MOV array[SI],AL
+        pass:
+        INC SI 
+        JMP forInner
+endBubble: 
+ret       
+BUBBLE ENDP 
+
+Copy PROC
+    LEA SI,array
+    MOV DI,2000h
+    MOV CX,N 
+    REP MOVSB
+ret
+Copy ENDP                
+        
+        

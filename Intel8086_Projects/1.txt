@@ -1,0 +1,20 @@
+org 100h
+
+
+ LEA DI, arr     
+ MOV BX ,3000h ;changing DS to 3000h
+ MOV DS,BX   
+ 
+ MOV SI, 2000h   
+ MOV CX, 10
+m:
+ MOV DL, ES:[DI]
+ MOV [SI], DL 
+ ADD SI,1             ; or INC SI
+ ADD DI,1
+ ADD AL, DL
+ LOOP m
+ MOV [SI], AL   
+
+ret 
+arr DB 10 DUP(2)

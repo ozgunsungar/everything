@@ -1,0 +1,29 @@
+; You may customize this and other start-up templates; 
+; The location of this template is c:\emu8086\inc\0_com_template.txt
+
+    org 100h
+    MOV BL,1
+    LEA SI,number  
+    MOV CX,ES:[SI]
+    ADD CX,-2  ;asal bolme 2den basladigi icin 2 cikardik.
+m:  
+     
+    INC BL
+    MOV AX,ES:[SI]
+    CMP AX,2  ;checking number if is 2 or not
+    JE skip
+    DIV BL    ; DX remainder
+    CMP AH,0  ; ZF = 1(dx==0) or ZF = 0
+    JE exit:
+    LOOP m:
+skip: 
+    INC isPrime 
+    MOV DL,isPrime ; showing isPrime's value
+    ret 
+    exit:
+     
+    ret
+
+    
+number DB 2
+isPrime DB 0

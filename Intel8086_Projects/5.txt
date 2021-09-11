@@ -1,0 +1,57 @@
+org 100h 
+
+MOV DX,2000h
+MOV BL,10h
+
+sonsuz:  
+    
+ 
+    
+    MOV SI,0  
+
+    
+     MOV CX,20 
+     
+     Next:
+     
+    CMP DX,2028h
+    JNE git 
+    MOV DX,2000h 
+    MOV AH,1
+    git:  
+     MOV AL,E[SI]
+     OUT DX,AL
+     INC SI
+     INC DX
+        
+     MOV DI,DX
+     LOOP Next :  
+
+     CMP AH,1
+     JNE uc
+     MOV DX,202Dh
+     uc:
+     SUB DX,20
+     MOV CX,5 
+     aa:
+     MOV AL,E[SI]
+     OUT DX,AL
+     INC SI
+     INC DX 
+     CMP DX,2028h
+     JNE ccc
+     MOV DX,DI
+     ccc:
+     LOOP aa :  
+ 
+
+
+JMP sonsuz
+ret
+	 
+	
+E   	DB	01111111b, 01001001b, 01001001b, 01001001b, 01000001b  ; E
+S       DB	01001111b, 01001001b, 01001001b, 01001001b, 01111001b  ; S
+T	    DB	00000001b, 00000001b, 01111111b, 00000001b, 00000001b  ; T
+U	    DB	01111111b, 01000000b, 01000000b, 01000000b, 01111111b  ; U  
+Sil     DB  00000000b, 00000000b, 00000000b, 00000000b, 00000000b  ;sil

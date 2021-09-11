@@ -1,0 +1,64 @@
+
+; You may customize this and other start-up templates; 
+; The location of this template is c:\emu8086\inc\0_com_template.txt
+
+org 100h
+
+LEA SI,N
+MOV DL,DS:[SI]
+
+CMP DX,26
+JGE error
+CMP DX,14
+JL error
+
+LEA DI,arr        
+MOV CX,DS:[SI] 
+MOV SI,0 
+
+MOV arr[SI],0
+INC SI
+
+MOV arr[SI],1
+INC SI
+
+m:    
+    CMP DX,SI
+    JE exit
+    MOV AX,SI
+    MOV BL,2         
+    DIV BL
+    CMP AH,0
+    JNE even
+    JMP odd
+           
+    odd:
+        MOV AL,arr[SI-1]
+        SUB AL,arr[SI-2] 
+        MOV arr[SI],AL
+        INC SI
+
+        Loop m:
+    
+    even:
+        MOV AL,arr[SI-1]
+        ADD AL,arr[SI-2] 
+        MOV arr[SI],AL
+        INC SI
+
+        Loop m:  
+error:
+    
+    LEA SI, MESSAGE 
+    MOV CX, 38 
+    MOV AH, 0Eh
+GO:
+    LODSB 
+    INT 10h 
+    LOOP GO        
+exit:
+ ret                
+
+N DB 10
+MESSAGE DB 'Please enter a value between 14 and 26', 0
+arr DB 10 DUP(0)

@@ -1,0 +1,280 @@
+
+; You may customize this and other start-up templates; 
+; The location of this template is c:\emu8086\inc\0_com_template.txt
+
+org 100h
+START: 
+CALL COUNT
+;if(Number of tries>20)
+CMP NumOfTries,20
+JG triesbuyuk20 
+;R=Random Number (Between 0 and 9)
+CALL RANDOM 
+;key=R and 5
+MOV BH, RandomNumber
+AND BH,5 
+MOV Key,BH
+;key1=(key*R+5) mod 5
+MOV AL,Key
+MUL RandomNumber
+ADD AX,5 
+MOV BL,5
+DIV BL 
+MOV Key1,AH 
+;DEGISTI;if (key1==0)
+CMP Key1,0;0 degeri vardi 15 yerine
+JNE START
+;FirstIf
+MOV BH,1
+CALL PRINT
+MOV BH,Key
+OR BH,RandomNumber
+MOV Key2,BH
+;if(key2!=0)
+CMP Key2,0
+JE START
+;Second If
+MOV BH,2
+CALL PRINT
+MOV BH,Key 
+ADD BH,RandomNumber
+MOV Key3,BH
+SAR Key3,2
+;if(key3!=0)
+CMP Key3,0 
+JE START
+;Third if
+MOV BH,3
+CALL PRINT 
+MOV BH,Key
+XOR BH,RandomNumber
+MOV Key4,BH
+;if(key4!=0)
+CMP Key4,0 
+JE START
+;Fourth if
+MOV BH,4
+CALL PRINT
+MOV AL,Key
+MUL RandomNumber
+MOV Key5,AL
+;if(key5==0)
+CMP Key5,0
+JNE START
+MOV BH,5
+CALL PRINT
+ret
+
+
+ 
+
+
+
+triesbuyuk20:
+MOV BH,0
+CALL PRINT
+ret
+
+
+
+
+;Procedures
+
+;@RANDOM procedure  
+
+RANDOM PROC   
+    
+   MOV AH, 00h  ; interrupts to get system time        
+   INT 1AH      ; CX:DX now hold number of clock ticks since midnight      
+
+   mov  ax, dx
+   xor  dx, dx
+   mov  cx, 10  
+   div  cx       ; here dx contains the remainder of the division - from 0 to 9
+  
+   MOV RandomNumber,DL
+   ;add  dl, '0'  ; to ascii from '0' to '9' 
+   ;DL degeri random sayi degeridir.
+    
+    ret
+RANDOM ENDP  
+       
+;--------------------------------------       
+
+;@COUNT procedure 
+             
+COUNT PROC   
+INC NumOfTries    
+MOV DX, 2031h 
+SecondD: 
+    CMP DI,9
+    JE RE 
+    INC DI      
+    MOV AL, NUMBERS[DI]
+    out DX, AL
+    
+    ret
+RE:
+    MOV AL, NUMBERS[0]
+    out DX, AL
+    MOV DI, 0 
+    JMP FirstD  
+    END:  
+    ret
+FirstD:
+    MOV AH,0
+    MOV AL,NumOfTries
+    MOV BL,10
+    DIV BL
+    MOV SI,AX
+    MOV DX,2030h  
+    MOV AL, NUMBERS[SI]
+    out DX, AL 
+    
+       
+      
+    ret
+
+    
+COUNT ENDP 
+;------------------------------------------------
+;PRINT PROCEDURE
+
+PRINT PROC     
+Clear:
+    MOV DX, 2040h
+    LEA SI,MESSAGEClear 
+       
+    MOV CX,18 
+GOClear:
+    LODSB 
+    OUT DX, AL
+    INC DX 
+LOOP GOClear 
+CMP BH,0
+JE Close
+CMP BH,1
+JE Lock1
+CMP BH,2
+JE Lock2
+CMP BH,3
+JE Lock3
+CMP BH,4
+JE Lock4
+CMP BH,5
+JE Lock5
+    
+Close:
+    MOV DX, 2040h
+    LEA SI,MESSAGELockClose 
+       
+    MOV CX,18 
+
+
+GOClose:
+    LODSB 
+    OUT DX, AL
+    INC DX 
+    LOOP GOClose  
+    
+    ret
+
+
+Lock1: 
+    MOV DX, 2040h
+    LEA SI,MESSAGELockOneIsOpen    
+    MOV CX,13 
+    
+GO1:
+    LODSB 
+    OUT DX, AL
+    INC DX  
+    LOOP GO1
+    ret
+
+
+Lock2:
+    MOV DX, 2040h
+    LEA SI,MESSAGELockTwoIsOpen    
+    MOV CX,13 
+    
+GO2:
+    LODSB 
+    OUT DX, AL
+    INC DX 
+    LOOP GO2
+    ret
+
+
+Lock3:
+    MOV DX, 2040h
+    LEA SI,MESSAGELockThreeIsOpen    
+    MOV CX,13 
+    
+GO3:
+    LODSB 
+    OUT DX, AL
+    INC DX 
+    LOOP GO3
+    ret           
+
+Lock4: 
+    MOV DX, 2040h
+    LEA SI,MESSAGELockFourIsOpen    
+    MOV CX,13
+    
+GO4:
+    LODSB 
+    OUT DX, AL
+    INC DX 
+    LOOP GO4
+    ret
+  
+
+Lock5: 
+    MOV DX, 2040h
+    LEA SI,MESSAGELockFiveIsOpen    
+    MOV CX,26 
+    
+GO5:
+    LODSB 
+    OUT DX, AL
+    INC DX 
+    LOOP GO5
+    ret
+    
+    ret
+PRINT ENDP
+
+;------------------------------------------------
+;VARIABLES
+
+NUMBERS	DB 00111111b,  ;0
+        DB 00000110b,  ;1
+        DB 01011011b,  ;2
+        DB 01001111b,  ;3
+        DB 01100110b,  ;4
+        DB 01101101b,  ;5
+        DB 01111101b,  ;6
+        DB 00000111b,  ;7
+        DB 01111111b,  ;8
+        DB 01101111b   ;9 
+        
+NumOfTries DB 0       
+RandomNumber DB 0
+Key DB 0
+Key1 DB 0
+Key2 DB 0
+Key3 DB 0
+Key4 DB 0
+Key5 DB 0
+
+        
+        
+MESSAGELockClose DB 'Locks are not open'
+MESSAGELockOneIsOpen DB 'Lock1 is open' 
+MESSAGELockTwoIsOpen DB 'Lock2 is open'  
+MESSAGELockThreeIsOpen DB 'Lock3 is open'  
+MESSAGELockFourIsOpen DB 'Lock4 is open'      
+MESSAGELockFiveIsOpen DB 'Lock5 is open and I am out'
+MESSAGEClear DB '                           '
